@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Умный Калькулятор Видеонаблюдения</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        body {
+            background-color: var(--tg-theme-bg-color, #f5f5f7);
+            color: var(--tg-theme-text-color, #000000);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="p-4 max-w-md mx-auto">
+
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
+        <h1 class="text-xl font-bold text-gray-800 mb-2">Калькулятор сметы 📊</h1>
+        <p class="text-sm text-gray-500 mb-4">Настройте параметры вашей системы. Смета рассчитает работы и само оборудование!</p>
+        
+        <div class="mb-3">
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Имя заказчика / Компания</label>
+            <input type="text" id="client_name" value="Частное лицо" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition">
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Класс оборудования</label>
+            <select id="equip_class" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                <option value="tiandy">Бюджетный (Tiandy)</option>
+                <option value="hiwatch">Средний класс (HiWatch/Dahua)</option>
+                <option value="premium">Премиум (IP с аналитикой)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
+        <h2 class="text-sm font-bold text-gray-700 uppercase mb-3">Камеры видеонаблюдения</h2>
+        
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <span class="block text-sm font-medium text-gray-800">🎥 Внутренние камеры</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="changeVal('indoor', -1)" class="w-8 h-8 bg-gray-100 active:bg-gray-200 rounded-lg font-bold text-lg">-</button>
+                <span id="indoor_count" class="w-6 text-center font-semibold">2</span>
+                <button onclick="changeVal('indoor', 1)" class="w-8 h-8 bg-gray-100 active:bg-gray-200 rounded-lg font-bold text-lg">+</button>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center">
+            <div>
+                <span class="block text-sm font-medium text-gray-800">📹 Уличные камеры</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="changeVal('outdoor', -1)" class="w-8 h-8 bg-gray-100 active:bg-gray-200 rounded-lg font-bold text-lg">-</button>
+                <span id="outdoor_count" class="w-6 text-center font-semibold">2</span>
+                <button onclick="changeVal('outdoor', 1)" class="w-8 h-8 bg-gray-100 active:bg-gray-200 rounded-lg font-bold text-lg">+</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
+        <h2 class="text-sm font-bold text-gray-700 uppercase mb-4">Прокладка кабеля (Метры)</h2>
+        
+        <div class="mb-4">
+            <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-700">〰️ В гофре</span>
+                <span class="font-bold text-blue-600"><span id="gofra_val">10</span> м</span>
+            </div>
+            <input type="range" id="gofra" min="0" max="150" step="5" value="10" oninput="updateSliders()" class="w-full accent-blue-600 h-2 bg-gray-100 rounded-lg cursor-pointer">
+        </div>
+
+        <div class="mb-4">
+            <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-700">📦 В коробе</span>
+                <span class="font-bold text-blue-600"><span id="korob_val">0</span> м</span>
+            </div>
+            <input type="range" id="korob" min="0" max="150" step="5" value="0" oninput="updateSliders()" class="w-full accent-blue-600 h-2 bg-gray-100 rounded-lg cursor-pointer">
+        </div>
+
+        <div class="mb-4">
+            <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-700">💨 По воздуху</span>
+                <span class="font-bold text-blue-600"><span id="air_val">0</span> м</span>
+            </div>
+            <input type="range" id="air" min="0" max="150" step="5" value="0" oninput="updateSliders()" class="w-full accent-blue-600 h-2 bg-gray-100 rounded-lg cursor-pointer">
+        </div>
+
+        <div>
+            <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-700">🧱 В штробе</span>
+                <span class="font-bold text-blue-600"><span id="shtroba_val">0</span> м</span>
+            </div>
+            <input type="range" id="shtroba" min="0" max="150" step="5" value="0" oninput="updateSliders()" class="w-full accent-blue-600 h-2 bg-gray-100 rounded-lg cursor-pointer">
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
+        <h2 class="text-sm font-bold text-gray-700 uppercase mb-3">Опции и Условия</h2>
+        
+        <div class="mb-3">
+            <label class="block text-xs text-gray-400 mb-1">Жесткий диск (Архив)</label>
+            <select id="hdd" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none">
+                <option value="0">Не нужен</option>
+                <option value="1">1 Тбайт 💾</option>
+                <option value="2">2 Тбайт 💾</option>
+                <option value="4">4 Тбайт 💾</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="block text-xs text-gray-400 mb-1">Схема питания</label>
+            <select id="poe" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none">
+                <option value="built_in">Регистратор со встроенным PoE</option>
+                <option value="separate">Отдельный Switch PoE</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-xs text-gray-400 mb-1">Высотность работ</label>
+            <select id="height" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none">
+                <option value="1.0">Обычный монтаж (до 3м)</option>
+                <option value="1.3">Высотные работы (> 3м) (+30%)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-lg sticky bottom-4">
+        <button onclick="sendDataToBot()" class="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] transition text-white font-bold py-3 px-4 rounded-xl text-center shadow-md">
+            Рассчитать смету и получить PDF! 🚀
+        </button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let counts = { indoor: 2, outdoor: 2 };
+
+        function changeVal(type, direction) {
+            counts[type] = Math.max(0, counts[type] + direction);
+            document.getElementById(`${type}_count`).innerText = counts[type];
+        }
+
+        function updateSliders() {
+            document.getElementById('gofra_val').innerText = document.getElementById('gofra').value;
+            document.getElementById('korob_val').innerText = document.getElementById('korob').value;
+            document.getElementById('air_val').innerText = document.getElementById('air').value;
+            document.getElementById('shtroba_val').innerText = document.getElementById('shtroba').value;
+        }
+
+        function sendDataToBot() {
+            const data = {
+                client_name: document.getElementById('client_name').value,
+                equip_class: document.getElementById('equip_class').value,
+                indoor: counts.indoor,
+                outdoor: counts.outdoor,
+                gofra: parseInt(document.getElementById('gofra').value),
+                korob: parseInt(document.getElementById('korob').value),
+                air: parseInt(document.getElementById('air').value),
+                shtroba: parseInt(document.getElementById('shtroba').value),
+                hdd: document.getElementById('hdd').value,
+                poe: document.getElementById('poe').value,
+                height: document.getElementById('height').value
+            };
+            tg.sendData(JSON.stringify(data));
+        }
+    </script>
+</body>
+</html>
